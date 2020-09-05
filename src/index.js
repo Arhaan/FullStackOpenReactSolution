@@ -2,17 +2,29 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import './index.css';
 
+const Statistic = (props) =>
+    <tr><td>{props.text.charAt(0).toUpperCase() + props.text.slice(1)}</td> <td>{props.value}</td></tr>
 const Statistics = (props) => {
+  if (props.all === 0){
+    return(
+      <div>
+          <h1>Statistics</h1>
+          <p>No feedback given</p>
+      </div>
+    )
+  }
+
   return(
     <div>
         <h1>Statistics</h1>
-
-        <p>Good {props.good}</p>
-        <p>Neutral {props.neutral}</p>
-        <p>Bad {props.bad}</p>
-        <p>All {props.all}</p>
-        <p>Average {props.average}</p>
-        <p>positive {props.positive} %</p>
+        <table>
+        <Statistic text="good" value={props.good}/>
+        <Statistic text="bad" value={props.bad}/>
+        <Statistic text="neutral" value={props.neutral}/>
+        <Statistic text="all" value={props.all}/>
+        <Statistic text="average" value={props.average}/>
+        <Statistic text="positive" value={props.positive}/>
+        </table>
     </div>
   )
 }
@@ -24,22 +36,30 @@ const App = () => {
   const [average, setAverage] = useState(0)
   const [positive, setPositive] = useState(0)
 
-  const updateAllAvgPositive = () =>{
-    setAll(all+1)
-    setAverage((good-bad)/all)
-    setPositive(good*100/all)
+  const updateAllAvgPositive = (newgood, newbad) =>{
+    const newall = all+1
+    setAll(newall)
+    setAverage((newgood-newbad)/newall)
+    setPositive(newgood*100/newall)
   }
   const increaseGood = () => {
-    setGood(good+1)
-    updateAllAvgPositive()
+    const newgood = good+1
+    const newbad = bad
+    setGood(newgood)
+    updateAllAvgPositive(newgood, newbad)
+
   }
   const increaseNeutral = () => {
     setNeutral(neutral+1)
-    updateAllAvgPositive()
+    updateAllAvgPositive(good, bad)
+
   }
   const increaseBad = () => {
-    setBad(bad+1)
-    updateAllAvgPositive()
+    const newgood = good
+    const newbad = bad+1
+    setBad(newbad)
+    updateAllAvgPositive(newgood, newbad)
+
   }
   return (
     <div>
