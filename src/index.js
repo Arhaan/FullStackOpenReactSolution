@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import './index.css';
 
 const Statistic = (props) =>
-    <tr><td>{props.text.charAt(0).toUpperCase() + props.text.slice(1)}</td> <td>{props.value}</td></tr>
+    <tr><td>{props.text.charAt(0).toUpperCase() + props.text.slice(1)}</td><td>{props.value}</td></tr>
 const Statistics = (props) => {
   if (props.all === 0){
     return(
@@ -18,12 +18,14 @@ const Statistics = (props) => {
     <div>
         <h1>Statistics</h1>
         <table>
+        <tbody>
         <Statistic text="good" value={props.good}/>
         <Statistic text="bad" value={props.bad}/>
         <Statistic text="neutral" value={props.neutral}/>
         <Statistic text="all" value={props.all}/>
         <Statistic text="average" value={props.average}/>
         <Statistic text="positive" value={props.positive}/>
+        </tbody>
         </table>
     </div>
   )
