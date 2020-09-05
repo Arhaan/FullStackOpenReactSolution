@@ -1,86 +1,43 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
-import './index.css';
+import './index.css'
 
-const Statistic = (props) =>
-    <tr><td>{props.text.charAt(0).toUpperCase() + props.text.slice(1)}</td><td>{props.value}</td></tr>
-const Statistics = (props) => {
-  if (props.all === 0){
-    return(
-      <div>
-          <h1>Statistics</h1>
-          <p>No feedback given</p>
-      </div>
-    )
+const App = (props) => {
+  const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
+  const changeQuote = () =>{
+    const randomnum = Math.floor(Math.random() * anecdotes.length)
+    setSelected(randomnum)
   }
-
-  return(
-    <div>
-        <h1>Statistics</h1>
-        <table>
-        <tbody>
-        <Statistic text="good" value={props.good}/>
-        <Statistic text="bad" value={props.bad}/>
-        <Statistic text="neutral" value={props.neutral}/>
-        <Statistic text="all" value={props.all}/>
-        <Statistic text="average" value={props.average}/>
-        <Statistic text="positive" value={props.positive}/>
-        </tbody>
-        </table>
-    </div>
-  )
-}
-
-const Button = (props)=>{
-  return(<button onClick={props.onClick}>{props.text}</button>)
-}
-const App = () => {
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
-  const [all, setAll] = useState(0)
-  const [average, setAverage] = useState(0)
-  const [positive, setPositive] = useState(0)
-
-  const updateAllAvgPositive = (newgood, newbad) =>{
-    const newall = all+1
-    setAll(newall)
-    setAverage((newgood-newbad)/newall)
-    setPositive(newgood*100/newall)
-  }
-  const increaseGood = () => {
-    const newgood = good+1
-    const newbad = bad
-    setGood(newgood)
-    updateAllAvgPositive(newgood, newbad)
-
-  }
-  const increaseNeutral = () => {
-    setNeutral(neutral+1)
-    updateAllAvgPositive(good, bad)
-
-  }
-  const increaseBad = () => {
-    const newgood = good
-    const newbad = bad+1
-    setBad(newbad)
-    updateAllAvgPositive(newgood, newbad)
-
+  const increaseVote = () => {
+    const newVotes = [...votes]
+    newVotes[selected] ++
+    setVotes(newVotes)
   }
   return (
     <div>
       <div>
-        <h1>Give FeedBack</h1>
-        <div>
-          <Button onClick={increaseGood} text="Good"/>
-          <Button onClick={increaseNeutral} text="Neutral"/>
-          <Button onClick={increaseBad} text = "Bad"/>
-        </div>
+        {props.anecdotes[selected]}<br/>
+        has {votes[selected]} Votes
       </div>
-      <Statistics good={good} bad={bad} neutral={neutral} all={all} average={average} positive={positive}/>
-
+      <div>
+        <button onClick={increaseVote}>Vote</button>
+        <button onClick={changeQuote}>next Anecdote</button>
+      </div>
     </div>
   )
 }
 
-ReactDOM.render(<App />, document.getElementById('root'))
+const anecdotes = [
+  'If it hurts, do it more often',
+  'Adding manpower to a late software project makes it later!',
+  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+  'Premature optimization is the root of all evil.',
+  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
+]
+
+ReactDOM.render(
+  <App anecdotes={anecdotes} />,
+  document.getElementById('root')
+)
