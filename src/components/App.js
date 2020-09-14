@@ -2,95 +2,83 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import '../index.css'
 
-const Filter = (props)=> {
+const CountriesForm = (props) => {
   return(
     <div>
       <form>
-        <div>
-          Filter Shown with <input value={props.filterName} onChange={props.handleFilterChange}/>
-        </div>
+        Find countries: <input value={props.countryQuery} onChange={props.handleQueryChange}/>
       </form>
     </div>
   )
 }
 
-const PersonForm = (props) => {
+const CountryProfile = ({country}) =>{
   return(
     <div>
-    <form onSubmit={props.addPerson}>
-        <div>
-          name: <input value={props.newName} onChange={props.handleNameChange}/>
-          Number: <input value={props.newNumber} onChange={props.handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      </div>
-  )
-}
-
-const Persons = (props) => {
-  return (
-    <div>
-    {props.namesToShow.map(person => <p key={person.name}>{person.name} {person.number}</p>)}
+      <h1>{country.name}</h1>
+      <p>Capital: {country.capital}</p>
+      <p>Population: {country.population}</p>
+      <h2>Languages</h2>
+      <ul>
+        {country.languages.map(language => <li key={language.name}>{language.name}</li>)}
+      </ul>
     </div>
   )
 }
-
+const DisplayCountries = (props) => {
+  if(props.countryQuery === ""){
+    return(
+      <div></div>
+    )
+  }
+  else if(props.countriesToShow.length > 10){
+    return(
+      <div>
+        <p>Too many matches, specify another filter</p>
+      </div>
+    )
+  }
+  else if(props.countriesToShow.length === 1){
+    return(
+      <CountryProfile country = {props.countriesToShow[0]}/>
+    )
+  }
+  else if(props.countriesToShow.length > 0){
+    return(
+      <ul>
+        {props.countriesToShow.map(country=><li key={country.name}>{country.name}</li>)}
+      </ul>
+    )
+  }
+  else{
+    return(
+      <div>Result Not Found</div>
+    )
+  }
+}
 const App = () => {
-  const [ persons, setPersons ] = useState([])
-  const [ newName, setNewName ] = useState('')
-  const [ newNumber, setNewNumber ] = useState('')
-  const [ filterName, setNewFilterName ] = useState('')
-
-  const namesToShow=persons.filter((person)=>person.name.toLowerCase().includes(filterName.toLowerCase()));
-
-  const addPerson = (event) => {
-    event.preventDefault()
-    if(persons.find((element) => element.name === newName)){
-      alert(`${newName} is already in the Phonebook`)
-      return;
-    }
-    const newperson = {
-      name: newName,
-      number: newNumber
-    }
-    setPersons(persons.concat(newperson))
-    setNewName('')
-    setNewNumber('')
-  }
-
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
-
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value)
-  }
-
-  const handleFilterChange = (event) => {
-    setNewFilterName(event.target.value)
-  }
-
+  const [countries, setCountries] = useState([])
+  const [countryQuery, setCountryQuery] = useState("")
+  const [countriesToShow, setCountriesToShow] = useState([])
   useEffect(()=>{
-    console.log("Effect")
     axios
-      .get("http://localhost:3001/persons")
-      .then(response=>{
-        setPersons(response.data)
+      .get("https://restcountries.eu/rest/v2/all")
+      .then((response)=>{
+        setCountries(response.data)
       })
-      console.log("Received the notes")
-  }, [])
-  console.log("Rendered Again")
-  return (
+  })
+
+  const handleQueryChange = (event) => {
+    const newQuery = event.target.value
+    const newCountries = countries.filter(country => country.name.includes(newQuery))
+    setCountryQuery(newQuery)
+    setCountriesToShow(newCountries)
+    console.log(newCountries.length)
+  }
+  return(
     <div>
-      <h2>Phonebook</h2>
-      <Filter filterName={filterName} handleFilterChange={handleFilterChange}/>
-      <h2>Add a new</h2>
-      <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson}/>
-      <h2>Numbers</h2>
-      <Persons namesToShow={namesToShow}/>
+      <CountriesForm countryQuery={countryQuery} handleQueryChange={handleQueryChange}/>
+      <DisplayCountries countryQuery={countryQuery} countriesToShow={countriesToShow}/>
     </div>
   )
 }
