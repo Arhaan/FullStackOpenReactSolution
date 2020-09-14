@@ -12,16 +12,43 @@ const CountriesForm = (props) => {
   )
 }
 
-const CountryProfile = ({country}) =>{
+const CountryProfile = (props) =>{
+  const weather_api_key = process.env.REACT_APP_WEATHER_API_KEY
+  const [weatherDataToDisplay, setWeatherDataToDisplay ] = useState({
+    temp: "...",
+    wind_speed: "...",
+    wind_dir: "...",
+    image_link: ""
+  })
+  useEffect(()=>{
+  axios
+    .get("http://api.weatherstack.com/current?access_key=" + weather_api_key+"&query="+props.country.capital)
+    .then(response =>{
+    const temp = response.data.current.temperature
+    const wind_speed = response.data.current.wind_speed
+    const wind_dir = response.data.current.wind_dir
+    const image_link = response.data.current.weather_icons[0]
+    setWeatherDataToDisplay({
+      temp: temp,
+      wind_speed: wind_speed,
+      wind_dir: wind_dir,
+      image_link: image_link
+    })
+    })
+  },[props.country.capital, weather_api_key])
   return(
     <div>
-      <h1>{country.name}</h1>
-      <p>Capital: {country.capital}</p>
-      <p>Population: {country.population}</p>
+      <h1>{props.country.name}</h1>
+      <p>Capital: {props.country.capital}</p>
+      <p>Population: {props.country.population}</p>
       <h2>Languages</h2>
       <ul>
-        {country.languages.map(language => <li key={language.name}>{language.name}</li>)}
+        {props.country.languages.map(language => <li key={language.name}>{language.name}</li>)}
       </ul>
+      <h2>Weather in {props.country.name}</h2>
+      <p><b>Temperature</b>: {weatherDataToDisplay.temp} Celsius</p>
+      <img src={weatherDataToDisplay.image_link} alt=""></img>
+      <p><b>Wind</b>: {weatherDataToDisplay.wind_speed} kmph direction {weatherDataToDisplay.wind_dir}</p>
     </div>
   )
 }
@@ -70,6 +97,7 @@ const App = () => {
   const [countryQuery, setCountryQuery] = useState("")
   const [countriesToShow, setCountriesToShow] = useState([])
   const [selectedCountryToShow, setSelectedCountryToShow] = useState("")
+
   useEffect(()=>{
     axios
       .get("https://restcountries.eu/rest/v2/all")
