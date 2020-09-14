@@ -26,6 +26,7 @@ const CountryProfile = ({country}) =>{
   )
 }
 const DisplayCountries = (props) => {
+
   if(props.countryQuery === ""){
     return(
       <div></div>
@@ -45,9 +46,17 @@ const DisplayCountries = (props) => {
   }
   else if(props.countriesToShow.length > 0){
     return(
-      <ul>
-        {props.countriesToShow.map(country=><li key={country.name}>{country.name}</li>)}
-      </ul>
+      <div>
+        {props.countriesToShow.map(country=>
+          {
+            const toShow = country.name===props.selectedCountryToShow
+            return(<div key={country.name}>
+              <p >{country.name} <button type="button" onClick={props.handleShowButtonClick(country.name)}>{(toShow)?"Hide":"Show"}</button> </p>
+              {(toShow)? <CountryProfile country = {country}/>: <></>}
+              </div>
+              )}
+        )}
+      </div>
     )
   }
   else{
@@ -60,6 +69,7 @@ const App = () => {
   const [countries, setCountries] = useState([])
   const [countryQuery, setCountryQuery] = useState("")
   const [countriesToShow, setCountriesToShow] = useState([])
+  const [selectedCountryToShow, setSelectedCountryToShow] = useState("")
   useEffect(()=>{
     axios
       .get("https://restcountries.eu/rest/v2/all")
@@ -73,12 +83,21 @@ const App = () => {
     const newCountries = countries.filter(country => country.name.includes(newQuery))
     setCountryQuery(newQuery)
     setCountriesToShow(newCountries)
+    setSelectedCountryToShow("")
     console.log(newCountries.length)
+  }
+  const handleShowButtonClick = (name) => () => {
+    if(selectedCountryToShow === name) {
+      setSelectedCountryToShow("")
+    }
+    else{
+      setSelectedCountryToShow(name)
+    }
   }
   return(
     <div>
       <CountriesForm countryQuery={countryQuery} handleQueryChange={handleQueryChange}/>
-      <DisplayCountries countryQuery={countryQuery} countriesToShow={countriesToShow}/>
+      <DisplayCountries countryQuery={countryQuery} countriesToShow={countriesToShow} handleShowButtonClick={handleShowButtonClick} selectedCountryToShow={selectedCountryToShow}/>
     </div>
   )
 }
