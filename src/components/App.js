@@ -33,7 +33,9 @@ const PersonForm = (props) => {
 const Persons = (props) => {
   return (
     <div>
-    {props.namesToShow.map(person => <p key={person.name}>{person.name} {person.number}</p>)}
+    {props.namesToShow
+      .map(person =>
+        <p key={person.name}>{person.name} {person.number} <button onClick={() => props.onDeleteClick(person)}>Delete</button></p>)}
     </div>
   )
 }
@@ -59,12 +61,22 @@ const App = () => {
     backendFunctions
       .createPerson(newperson)
       .then(response => {
-        setPersons(persons.concat(newperson))
+        setPersons(persons.concat(response.data))
         setNewName('')
         setNewNumber('')
       })
 
 
+  }
+
+  const deletePerson = (delperson) => {
+    if (window.confirm(`Are you sure you want to delete ${delperson.name}`)){
+      backendFunctions
+        .deletePerson(delperson.id)
+        .then((response) => {
+          setPersons(persons.filter(person => person !== delperson))
+        })
+    }
   }
 
   const handleNameChange = (event) => {
@@ -78,6 +90,8 @@ const App = () => {
   const handleFilterChange = (event) => {
     setNewFilterName(event.target.value)
   }
+
+
 
   useEffect(()=>{
     backendFunctions
@@ -95,7 +109,7 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson}/>
       <h2>Numbers</h2>
-      <Persons namesToShow={namesToShow}/>
+      <Persons namesToShow={namesToShow} onDeleteClick={deletePerson}/>
     </div>
   )
 }
