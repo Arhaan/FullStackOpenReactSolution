@@ -40,11 +40,23 @@ const Persons = (props) => {
   )
 }
 
+const Notification = ({message, isError}) => {
+  if(message === null){
+    return null;
+  }
+
+  return(
+    <div className={(isError) ?"error":"success"}>
+      {message}
+    </div>
+  )
+}
 const App = () => {
   const [ persons, setPersons ] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ filterName, setNewFilterName ] = useState('')
+  const [ notification, setNotification] = useState({message:null, isError: false})
 
   const namesToShow=persons.filter((person)=>person.name.toLowerCase().includes(filterName.toLowerCase()));
 
@@ -63,8 +75,31 @@ const App = () => {
           setNewName('')
           setNewNumber('')}
         )
+        .then(() => {
+          setNotification({
+            message: `Succesfully Updated ${updatedPerson.name}`,
+            isError: false
+          })
+          setTimeout(
+            () => setNotification({
+              message: null,
+              isError: false
+            }), 5000)
+        })
+        .catch((error) => {
+          setNotification({
+            message: `Information of ${updatedPerson.name} has already been deleted`,
+            isError: true
+          })
+          console.log("Setting timeout")
+          setTimeout(
+            () => setNotification({
+              message: null,
+              isError: false
+            }), 5000)
+        })
+        return;
       }
-      return;
     }
     const newperson = {
       name: newName,
@@ -77,6 +112,17 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
+      .then(() => {
+        setNotification({
+          message: `Succesfully Created ${newperson.name}`,
+          isError: false
+        })
+        setTimeout(
+          () => setNotification({
+            message: null,
+            isError: false
+          }), 5000)
+      })
 
 
   }
@@ -88,6 +134,15 @@ const App = () => {
         .then((response) => {
           setPersons(persons.filter(person => person !== delperson))
         })
+        .then(() => {
+          setNotification({
+            message: `Succesfully Deleted ${delperson.name}`,
+            isError: false
+          })
+          setTimeout(
+            () => {setNotification({message: null, isError: false})}, 5000)
+        })
+
     }
   }
 
@@ -117,6 +172,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification.message} isError={notification.isError}/>
       <Filter filterName={filterName} handleFilterChange={handleFilterChange}/>
       <h2>Add a new</h2>
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson}/>
