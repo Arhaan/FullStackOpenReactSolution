@@ -51,7 +51,19 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
     if(persons.find((element) => element.name === newName)){
-      alert(`${newName} is already in the Phonebook`)
+      if(window.confirm(`${newName} is already in the Phonebook, replace old number with new one?`)){
+        const updatedPerson ={
+          ...persons.find(person => person.name === newName),
+          number: newNumber
+        }
+        backendFunctions
+        .updatePerson(updatedPerson)
+        .then((response) =>{
+          setPersons(persons.map(person => (person.name!==updatedPerson.name ? person : response)))
+          setNewName('')
+          setNewNumber('')}
+        )
+      }
       return;
     }
     const newperson = {
@@ -61,7 +73,7 @@ const App = () => {
     backendFunctions
       .createPerson(newperson)
       .then(response => {
-        setPersons(persons.concat(response.data))
+        setPersons(persons.concat(response))
         setNewName('')
         setNewNumber('')
       })
