@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import backendFunctions from '../services/contacts'
 import '../index.css'
 
 const Filter = (props)=> {
@@ -56,8 +56,8 @@ const App = () => {
       name: newName,
       number: newNumber
     }
-    axios
-      .post("http://localhost:3001/persons", newperson)
+    backendFunctions
+      .createPerson(newperson)
       .then(response => {
         setPersons(persons.concat(newperson))
         setNewName('')
@@ -80,13 +80,12 @@ const App = () => {
   }
 
   useEffect(()=>{
-    console.log("Effect")
-    axios
-      .get("http://localhost:3001/persons")
+    backendFunctions
+      .getAll()
       .then(response=>{
-        setPersons(response.data)
+        setPersons(response)
       })
-      console.log("Received the notes")
+      console.log("Received the Persons")
   }, [])
   console.log("Rendered Again")
   return (
